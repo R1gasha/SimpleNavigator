@@ -49,23 +49,43 @@ class GraphAlgorithms:
     def get_shortest_path_between_vertices(self, graph: S21_Graph, vertex1: int, vertex2: int) -> int:
         count_nodes = graph.get_count_vertex()
         all_path = {i: math.inf for i in range(1, count_nodes + 1)}
+
+        neighbors = graph.get_neighbors(vertex1)
+        for node, weight in neighbors:
+            all_path[node] = weight
+
+        all_path[vertex1] = 0
         visited = set()
 
-        current_vertex = vertex1
 
-        while current_vertex != vertex2:
-            neighbors = graph.get_neighbors(current_vertex)
+        node = self._find_lowest_cost_node(all_path, visited)
+        while node is not None:
+            cost = all_path[node]
+            neighbors = graph.get_neighbors(node)
             for neighbor, weigth in neighbors:
-                all_path[neighbor] = weigth
-                visited.add(neighbor)
-            
-            min_wight_vertex = min(key for key, value in all_path.items() if key != vertex1)
+                if neighbor not in visited:
+                    new_cost = cost + weigth
+                    if new_cost < all_path[neighbor]:
+                        all_path[neighbor] = new_cost
 
-            current_vertex = min_wight_vertex
+            visited.add(node)
+            node = self._find_lowest_cost_node(all_path, visited)
 
-        # min_wight = min(key for key, value in all_path.items() if key != vertex1)
-        return
+        print(all_path)
 
+        return all_path[vertex2]
+
+    def _find_lowest_cost_node(self, all_costs: dict, visited_nodes: set):
+        lowst_cost = float('inf')
+        lowest_cost_node = None
+        for node in all_costs:
+            cost = all_costs[node]
+            if cost < lowst_cost and node not in visited_nodes:
+                lowst_cost = cost
+                lowest_cost_node = node
+
+        #print(lowst_cost, lowest_cost_node)
+        return lowest_cost_node
 
 graph = S21_Graph()
 graph.load_graph_from_file('datasets/test_1.txt')
@@ -75,4 +95,5 @@ dfs = res.depth_first_search(graph, 1)
 bfs = res.breadth_first_search(graph, 1)
 print(dfs)
 print(bfs)
-res.get_shortest_path_between_vertices(graph, 1 , 2)
+r = res.get_shortest_path_between_vertices(graph, 1 , 3)
+print(r)
